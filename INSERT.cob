@@ -52,6 +52,9 @@
             "ERROR WHILE OPENING FILE".
             05  WRK-MSG-PATH        PIC X(030) VALUE
             "ERROR ON FILE PATH".
+            05  WRK-MSG-UNKNOWN     PIC X(030) VALUE
+            "UNKNOWN ERROR".
+            
        
        LINKAGE                 SECTION.
       *---------------------------- LINKAGE VARIABLES
@@ -123,6 +126,8 @@
        0210-VERIFICATION       SECTION.
        0220-VERIFICATION-MOVIES.
             EVALUATE MOVIES-STATUS
+              WHEN 0
+                CONTINUE
               WHEN 30
                 MOVE WRK-MSG-PATH TO WRK-ERROR-MSG
               WHEN 35
@@ -130,8 +135,9 @@
               WHEN 42
                 MOVE WRK-MSG-CORRUPTED TO WRK-ERROR-MSG
               WHEN OTHER
-                CONTINUE
+                MOVE WRK-MSG-UNKNOWN TO WRK-ERROR-MSG
             END-EVALUATE.
+
             PERFORM 9000-MANAGE-ERROR.
 
        0300-PROCESS            SECTION.
