@@ -35,7 +35,7 @@
 
        WORKING-STORAGE         SECTION.
       *---------------------------- DATA ENTRY VARIABLES
-      77 WRK-KEY                    PIC X(001).
+       77 WRK-KEY                    PIC X(001).
       
       *---------------------------- FILE
        77 MOVIES-STATUS             PIC 9(02) VALUE ZEROS.
@@ -85,17 +85,14 @@
                    BLANK WHEN ZEROS.
             05 ENTITY-DATA.
                 10 LINE 11 COLUMN 10 VALUE "TITLE: ".
-                10 COLUMN PLUS 2    PIC X(050) USING MOVIES-TITLE
-                   BLANK WHEN SPACES.
+                10 COLUMN PLUS 2    PIC X(050) USING MOVIES-TITLE.
                 10 LINE 12 COLUMN 10 VALUE "GENRE: ".
-                10 COLUMN PLUS 2    PIC X(030) USING MOVIES-GENRE
-                   BLANK WHEN SPACES.
+                10 COLUMN PLUS 2    PIC X(030) USING MOVIES-GENRE.
                 10 LINE 13 COLUMN 10 VALUE "DURATION: ".
                 10 COLUMN PLUS 2    PIC 9(003) USING MOVIES-DURATION
                    BLANK WHEN ZEROS.
                 10 LINE 14 COLUMN 10 VALUE "DISTRIBUTOR: ".
-                10 COLUMN PLUS 2    PIC X(040) USING MOVIES-DISTRIBUTOR
-                   BLANK WHEN SPACES.
+                10 COLUMN PLUS 2    PIC X(040) USING MOVIES-DISTRIBUTOR.
                 10 LINE 15 COLUMN 10 VALUE "RATING: ".
                 10 COLUMN PLUS 2    PIC 9(002) USING MOVIES-RATING
                    BLANK WHEN ZEROS.
@@ -129,14 +126,17 @@
             EVALUATE MOVIES-STATUS
               WHEN 30
                 MOVE WRK-MSG-PATH TO WRK-ERROR-MSG
-                PERFORM 9000-MANAGE-ERROR
               WHEN 35
                 MOVE WRK-MSG-OPEN TO WRK-ERROR-MSG
-                PERFORM 9000-MANAGE-ERROR
               WHEN 42
                 MOVE WRK-MSG-CORRUPTED TO WRK-ERROR-MSG
-                PERFORM 9000-MANAGE-ERROR
+              WHEN OTHER
+                CONTINUE
             END-EVALUATE.
+
+            IF MOVIES-STATUS NOT EQUAL 0
+               PERFORM 9000-MANAGE-ERROR
+            END-IF.
 
        0300-PROCESS            SECTION.
             DISPLAY CLEANER-SCREEN.
