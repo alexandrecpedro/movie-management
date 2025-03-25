@@ -41,10 +41,10 @@
       *---------------------------- TITLES
        01 WRK-TITLE.
             05 WRK-SCREEN-TITLE      PIC X(020) VALUE "MOVIE SYSTEM".
-            05 WRK-MODULE-TITLE      PIC X(016).
+            05 WRK-MODULE-TITLE      PIC X(016) VALUE SPACES.
 
       *---------------------------- FILE
-       77 CLIENTS-STATUS             PIC 9(02) VALUE ZEROS.
+       77 MOVIES-STATUS             PIC 9(02) VALUE ZEROS.
 
       *---------------------------- ERROR MESSAGES
        77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
@@ -107,29 +107,30 @@
             STOP RUN.
 
        0200-INITIALIZE         SECTION.
-            OPEN I-O CLIENTS.
+            OPEN I-O MOVIES.
             PERFORM 0210-VERIFICATION THRU 0220-DISPLAY-MENU.
 
        0210-VERIFICATION.
-            EVALUATE CLIENTS-STATUS
+            EVALUATE MOVIES-STATUS
               WHEN 30
                 MOVE WRK-MSG-PATH TO WRK-ERROR-MSG
-                PERFORM 9000-MANAGE-ERROR
               WHEN 35
-                OPEN OUTPUT CLIENTS
-                CLOSE CLIENTS
-                OPEN I-O CLIENTS
+                OPEN OUTPUT MOVIES
+                CLOSE MOVIES
+                OPEN I-O MOVIES
+                CONTINUE
               WHEN 42
                 MOVE WRK-MSG-CORRUPTED TO WRK-ERROR-MSG
-                PERFORM 9000-MANAGE-ERROR
+              WHEN OTHER
+                CONTINUE
             END-EVALUATE.
+            PERFORM 9000-MANAGE-ERROR.
 
        0220-DISPLAY-MENU.
             DISPLAY CLEANER-SCREEN.
             ACCEPT SHOW-MENU.
 
        0300-PROCESS            SECTION.
-            MOVE SPACES TO WRK-ERROR-MSG.
             EVALUATE WRK-OPTION
               WHEN 1
                  MOVE "MODULE - INSERT " TO WRK-MODULE-TITLE
@@ -153,12 +154,15 @@
                   PERFORM 9000-MANAGE-ERROR
             END-EVALUATE.
 
+            MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR 
+               WRK-ERROR-MSG.
+            MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING.
+
             PERFORM 0220-DISPLAY-MENU.
 
        0400-FINALIZE           SECTION.
-           CLOSE CLIENTS.
+           CLOSE MOVIES.
            GOBACK.
 
        9000-MANAGE-ERROR       SECTION.
-            CLOSE MOVIES.
             ACCEPT ERROR-SCREEN.
