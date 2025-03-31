@@ -17,7 +17,7 @@
       *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
              SELECT MOVIES ASSIGN TO "C:\Cobol\MOVIES.DAT"
              ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC
+             ACCESS MODE IS SEQUENTIAL
              FILE STATUS IS MOVIES-STATUS
              RECORD KEY IS MOVIES-KEY.
 
@@ -27,10 +27,10 @@
        FD MOVIES.
        01 MOVIES-REG.
             05 MOVIES-KEY            PIC 9(005).
-            05 MOVIES-TITLE          PIC X(050).
-            05 MOVIES-GENRE          PIC X(030).
+            05 MOVIES-TITLE          PIC X(030).
+            05 MOVIES-GENRE          PIC X(008).
             05 MOVIES-DURATION       PIC 9(003).
-            05 MOVIES-DISTRIBUTOR    PIC X(040).
+            05 MOVIES-DISTRIBUTOR    PIC X(015).
             05 MOVIES-RATING         PIC 9(002).
 
 
@@ -65,6 +65,7 @@
       *---------------------------- FILE
        77 MOVIES-STATUS              PIC 9(002) VALUE ZEROS.
        77 WRK-COUNTLINE              PIC 9(003) VALUE ZEROS.
+       77 WRK-PAGE                   PIC 9(002) VALUE ZEROS.
        77 WRK-REGQTY                 PIC 9(005) VALUE ZEROS.
 
        LINKAGE                 SECTION.
@@ -94,14 +95,14 @@
                    BLANK WHEN ZEROS.
             05 ENTITY-DATA.
                 10 LINE 11 COLUMN 10 VALUE "TITLE: ".
-                10 COLUMN PLUS 2     PIC X(050) USING MOVIES-TITLE.
+                10 COLUMN PLUS 2     PIC X(030) USING MOVIES-TITLE.
                 10 LINE 12 COLUMN 10 VALUE "GENRE: ".
-                10 COLUMN PLUS 2     PIC X(030) USING MOVIES-GENRE.
+                10 COLUMN PLUS 2     PIC X(008) USING MOVIES-GENRE.
                 10 LINE 13 COLUMN 10 VALUE "DURATION: ".
                 10 COLUMN PLUS 2     PIC 9(003) USING MOVIES-DURATION
                    BLANK WHEN ZEROS.
                 10 LINE 14 COLUMN 10 VALUE "DISTRIBUTOR: ".
-                10 COLUMN PLUS 2     PIC X(040)
+                10 COLUMN PLUS 2     PIC X(015)
                    USING MOVIES-DISTRIBUTOR.
                 10 LINE 15 COLUMN 10 VALUE "RATING: ".
                 10 COLUMN PLUS 2     PIC 9(002) USING MOVIES-RATING
@@ -119,8 +120,14 @@
                10 LINE 02 COLUMN 01  PIC X(025) ERASE EOL
                     BACKGROUND-COLOR 1.
                10 LINE 02 COLUMN 14  PIC X(015)
-                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 4
+                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
                     FROM LNK-MODULE-TITLE.
+               10 LINE 02 COLUMN 40
+                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
+                    VALUE "PAGE ".
+               10 COLUMN PLUS 2      PIC 9(002)
+                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
+                    FROM WRK-PAGE.
 
        PROCEDURE               DIVISION USING LNK-TITLE.
 
@@ -155,12 +162,14 @@
 
        0300-PROCESS            SECTION.
             MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR
-               WRK-ERROR-MSG WRK-KEY.
+               WRK-KEY.
             MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING.
 
+            MOVE 01 TO WRK-PAGE.
+
             DISPLAY CLEANER-SCREEN.
-            MOVE 00001 TO MOVIES-KEY.
-            START MOVIES KEY EQUAL MOVIES-KEY.
+      *      MOVE 00001 TO MOVIES-KEY.
+      *      START MOVIES KEY EQUAL MOVIES-KEY.
             PERFORM 0310-REPORT.
 
        0310-REPORT             SECTION.
@@ -170,13 +179,14 @@
                NOT INVALID KEY
                    PERFORM 0320-REPORT-HEADER
                    PERFORM 0340-REPORT-PROCESS
-                   PERFORM 0350-REPORT-STATISTICS
-            END-READ.
+                   PERFORM 0350-REPORT-STATISTICS.
             PERFORM 9000-MANAGE-ERROR.
 
        0320-REPORT-HEADER      SECTION.
             MOVE 0 TO WRK-COUNTLINE.
             MOVE 0 TO WRK-REGQTY.
+            MOVE 1 TO WRK-PAGE.
+
             MOVE 03 TO WRK-LINE.
             DISPLAY WRK-MSG-REPORT      LINE WRK-LINE COLUMN 14.
             ADD 01 TO WRK-LINE.
@@ -184,21 +194,19 @@
             ADD 01 TO WRK-LINE.
             DISPLAY 'KEY'               LINE WRK-LINE COLUMN 01.
             DISPLAY 'TITLE'             LINE WRK-LINE COLUMN 06.
-            DISPLAY 'GENRE'             LINE WRK-LINE COLUMN 57.
-      *      DISPLAY 'DURATION'          LINE WRK-LINE COLUMN 88.
-      *      DISPLAY 'DISTRIBUTOR'       LINE WRK-LINE COLUMN 91.
-      *      DISPLAY 'RATING'            LINE WRK-LINE COLUMN 132.
+            DISPLAY 'GENRE'             LINE WRK-LINE COLUMN 37.
+            DISPLAY 'DURATION'          LINE WRK-LINE COLUMN 46.
+            DISPLAY 'DISTRIBUTOR'       LINE WRK-LINE COLUMN 55.
+            DISPLAY 'RATING'            LINE WRK-LINE COLUMN 71.
 
        0330-REPORT-DATA        SECTION.
             ADD 01 TO WRK-LINE.
-            DISPLAY 'KEY'               LINE WRK-LINE COLUMN 01.
             DISPLAY MOVIES-KEY          LINE WRK-LINE COLUMN 01.
             DISPLAY MOVIES-TITLE        LINE WRK-LINE COLUMN 06.
-            DISPLAY MOVIES-GENRE        LINE WRK-LINE COLUMN 57.
-      *      DISPLAY MOVIES-DURATION     LINE WRK-LINE COLUMN 88.
-      *      DISPLAY MOVIES-DISTRIBUTOR  LINE WRK-LINE COLUMN 91.
-      *      DISPLAY MOVIES-RATING       LINE WRK-LINE COLUMN 132.
-      *      DISPLAY MOVIES-RATING       LINE WRK-LINE COLUMN 14.
+            DISPLAY MOVIES-GENRE        LINE WRK-LINE COLUMN 37.
+            DISPLAY MOVIES-DURATION     LINE WRK-LINE COLUMN 46.
+            DISPLAY MOVIES-DISTRIBUTOR  LINE WRK-LINE COLUMN 55.
+            DISPLAY MOVIES-RATING       LINE WRK-LINE COLUMN 71.
 
             ADD 1 TO WRK-REGQTY.
             ADD 1 TO WRK-COUNTLINE.
@@ -208,6 +216,7 @@
                IF WRK-COUNTLINE = 5
                    MOVE WRK-MSG-PRESSKEY TO WRK-ERROR-MSG
                    PERFORM 9000-MANAGE-ERROR
+                   ADD 1 TO WRK-PAGE
                    DISPLAY CLEANER-SCREEN
                    PERFORM 0320-REPORT-HEADER
                    MOVE 0 TO WRK-COUNTLINE
@@ -224,7 +233,7 @@
        0350-REPORT-STATISTICS  SECTION.
             MOVE WRK-MSG-READRECORDS TO WRK-ERROR-MSG.
             MOVE WRK-REGQTY TO WRK-ERROR-MSG(14:05).
-            DISPLAY ERROR-SCREEN.
+      *      DISPLAY ERROR-SCREEN.
 
        0400-FINALIZE           SECTION.
             CLOSE MOVIES.
@@ -232,3 +241,4 @@
 
        9000-MANAGE-ERROR       SECTION.
             ACCEPT ERROR-SCREEN.
+            MOVE SPACES TO WRK-ERROR-MSG.
