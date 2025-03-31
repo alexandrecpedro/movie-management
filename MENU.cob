@@ -17,7 +17,7 @@
       *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
              SELECT MOVIES ASSIGN TO "C:\Cobol\MOVIES.DAT"
              ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC
+             ACCESS MODE IS SEQUENTIAL
              FILE STATUS IS MOVIES-STATUS
              RECORD KEY IS MOVIES-KEY.
 
@@ -27,17 +27,16 @@
        FD MOVIES.
        01 MOVIES-REG.
             05 MOVIES-KEY            PIC 9(005).
-            05 MOVIES-TITLE          PIC X(050).
-            05 MOVIES-GENRE          PIC X(030).
+            05 MOVIES-TITLE          PIC X(030).
+            05 MOVIES-GENRE          PIC X(008).
             05 MOVIES-DURATION       PIC 9(003).
-            05 MOVIES-DISTRIBUTOR    PIC X(040).
+            05 MOVIES-DISTRIBUTOR    PIC X(015).
             05 MOVIES-RATING         PIC 9(002).
-
 
        WORKING-STORAGE         SECTION.
       *---------------------------- DATA ENTRY VARIABLES
-       77 WRK-OPTION                 PIC X(001).
-       77 WRK-KEY                    PIC X(001).
+       77 WRK-OPTION                 PIC X(001) VALUE SPACE.
+       77 WRK-KEY                    PIC X(001) VALUE SPACE.
 
       *---------------------------- ERROR MESSAGES
        77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
@@ -53,7 +52,7 @@
             "ERROR ON FILE PATH".
 
       *---------------------------- FILE
-       77 MOVIES-STATUS              PIC 9(02) VALUE ZEROS.
+       77 MOVIES-STATUS              PIC 9(002) VALUE ZEROS.
 
       *---------------------------- TITLES
        01 WRK-TITLE.
@@ -73,7 +72,7 @@
                 10 LINE 02 COLUMN 01 PIC X(025) ERASE EOL
                     BACKGROUND-COLOR 1.
                 10 LINE 02 COLUMN 14 PIC X(015)
-                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 4
+                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
                     FROM WRK-MODULE-TITLE.
 
       *---------------------------- MENU
@@ -85,7 +84,7 @@
             05 LINE 11 COLUMN 15 VALUE "5 - REPORT".
             05 LINE 12 COLUMN 15 VALUE "X - EXIT".
             05 LINE 13 COLUMN 15 VALUE "OPTION...: ".
-            05 LINE 13 COLUMN 26     PIC X(001) TO WRK-OPTION.
+            05 LINE 13 COLUMN 26     PIC X(001) USING WRK-OPTION.
 
       *---------------------------- ERROR SCREEN
        01 ERROR-SCREEN.
@@ -158,8 +157,8 @@
                   PERFORM 9000-MANAGE-ERROR
             END-EVALUATE.
 
-            MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR
-               WRK-ERROR-MSG WRK-OPTION.
+            MOVE SPACE TO WRK-OPTION WRK-KEY WRK-MODULE-TITLE.
+            MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR.
             MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING.
 
             PERFORM 0220-DISPLAY-MENU.
@@ -170,3 +169,4 @@
 
        9000-MANAGE-ERROR       SECTION.
             ACCEPT ERROR-SCREEN.
+            MOVE SPACES TO WRK-ERROR-MSG.
