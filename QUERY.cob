@@ -27,10 +27,10 @@
        FD MOVIES.
        01 MOVIES-REG.
             05 MOVIES-KEY            PIC 9(005).
-            05 MOVIES-TITLE          PIC X(050).
-            05 MOVIES-GENRE          PIC X(030).
+            05 MOVIES-TITLE          PIC X(030).
+            05 MOVIES-GENRE          PIC X(008).
             05 MOVIES-DURATION       PIC 9(003).
-            05 MOVIES-DISTRIBUTOR    PIC X(040).
+            05 MOVIES-DISTRIBUTOR    PIC X(015).
             05 MOVIES-RATING         PIC 9(002).
 
        WORKING-STORAGE         SECTION.
@@ -82,18 +82,20 @@
                    BLANK WHEN ZEROS.
             05 ENTITY-DATA.
                 10 LINE 11 COLUMN 10 VALUE "TITLE: ".
-                10 COLUMN PLUS 2     PIC X(050) USING MOVIES-TITLE.
+                10 COLUMN PLUS 2     PIC X(030) USING MOVIES-TITLE.
                 10 LINE 12 COLUMN 10 VALUE "GENRE: ".
-                10 COLUMN PLUS 2     PIC X(030) USING MOVIES-GENRE.
+                10 COLUMN PLUS 2     PIC X(008) USING MOVIES-GENRE.
                 10 LINE 13 COLUMN 10 VALUE "DURATION: ".
                 10 COLUMN PLUS 2     PIC 9(003) USING MOVIES-DURATION
                    BLANK WHEN ZEROS.
                 10 LINE 14 COLUMN 10 VALUE "DISTRIBUTOR: ".
-                10 COLUMN PLUS 2     PIC X(040)
+                10 COLUMN PLUS 2     PIC X(015)
                    USING MOVIES-DISTRIBUTOR.
                 10 LINE 15 COLUMN 10 VALUE "RATING: ".
                 10 COLUMN PLUS 2     PIC 9(002) USING MOVIES-RATING
                    BLANK WHEN ZEROS.
+
+
 
       *---------------------------- SCREEN LAYOUT
        01 CLEANER-SCREEN.
@@ -107,7 +109,7 @@
                10 LINE 02 COLUMN 01  PIC X(025) ERASE EOL
                     BACKGROUND-COLOR 1.
                10 LINE 02 COLUMN 14  PIC X(015)
-                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 4
+                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
                     FROM LNK-MODULE-TITLE.
 
        PROCEDURE               DIVISION USING LNK-TITLE.
@@ -142,8 +144,7 @@
             END-IF.
 
        0300-PROCESS            SECTION.
-            MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR
-               WRK-ERROR-MSG WRK-KEY.
+            MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR.
             MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING.
 
             DISPLAY CLEANER-SCREEN.
@@ -166,3 +167,4 @@
 
        9000-MANAGE-ERROR       SECTION.
             ACCEPT ERROR-SCREEN.
+            MOVE SPACES TO WRK-ERROR-MSG.
