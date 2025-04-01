@@ -1,10 +1,10 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. REPORT.
+       PROGRAM-ID. REPORTDISK.
       ******************************************************************
       * Author: ALEXANDRE PEDRO
       * Company: XPTO
-      * Date: 27/03/2025
-      * Purpose: REPORT THE MOVIES FROM MOVIES.DAT
+      * Date: 31/03/2025
+      * Purpose: RECORD THE MOVIES FROM MOVIES.DAT TO MOVIES.TXT
       ******************************************************************
        ENVIRONMENT             DIVISION.
        CONFIGURATION           SECTION.
@@ -15,11 +15,17 @@
        INPUT-OUTPUT            SECTION.
        FILE-CONTROL.
       *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
-             SELECT MOVIES ASSIGN TO "C:\Cobol\MOVIES.DAT"
+             SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
              ORGANIZATION IS INDEXED
              ACCESS MODE IS SEQUENTIAL
              FILE STATUS IS MOVIES-STATUS
              RECORD KEY IS MOVIES-KEY.
+
+      *       SELECT REPORT-MOVIES ASSIGN TO './Data/MOVIES.TXT'
+             SELECT REPORT-MOVIES ASSIGN TO
+               "C:\Cobol\Project\Data\MOVIES.TXT"
+             ORGANIZATION IS SEQUENTIAL
+             FILE STATUS IS REPORT-MOVIES-STATUS.
 
        DATA                    DIVISION.
        FILE                    SECTION.
@@ -33,6 +39,11 @@
             05 MOVIES-DISTRIBUTOR    PIC X(015).
             05 MOVIES-RATING         PIC 9(002).
 
+      *---------------------------- FILE OUTPUT
+       FD REPORT-MOVIES.
+       01 REPORT-MOVIES-REG.
+            05 REPORT-MOVIES-DATA    PIC X(063).
+
 
        WORKING-STORAGE         SECTION.
       *---------------------------- DATA ENTRY VARIABLES
@@ -45,34 +56,34 @@
        77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
 
        01   WRK-MSGS.
-            05  WRK-MSG-CORRUPTED    PIC X(030) VALUE
-            "CORRUPTED FILE".
-            05  WRK-MSG-NOTFOUND     PIC X(030) VALUE
-            "ENTITY NOT FOUND".
-            05  WRK-MSG-OPEN         PIC X(030) VALUE
-            "ERROR WHILE OPENING FILE".
-            05  WRK-MSG-PATH         PIC X(030) VALUE
-            "ERROR ON FILE PATH".
-            05  WRK-MSG-PRESSKEY     PIC X(030) VALUE
-            "PRESS ANY KEY".
-            05  WRK-MSG-READRECORDS  PIC X(030) VALUE
-            "READ RECORDS".
-            05  WRK-MSG-REPORT       PIC X(030) VALUE
-            "MOVIES REPORT".
-            05  WRK-MSG-UNKNOWN      PIC X(030) VALUE
-            "UNKNOWN ERROR".
+            05 WRK-MSG-CORRUPTED     PIC X(030) VALUE
+               "CORRUPTED FILE".
+            05 WRK-MSG-NOTFOUND      PIC X(030) VALUE
+               "ENTITY NOT FOUND".
+            05 WRK-MSG-OPEN          PIC X(030) VALUE
+               "ERROR WHILE OPENING FILE".
+            05 WRK-MSG-PATH          PIC X(030) VALUE
+               "ERROR ON FILE PATH".
+            05 WRK-MSG-PRESSKEY      PIC X(030) VALUE
+               "PRESS ANY KEY".
+            05 WRK-MSG-READRECORDS   PIC X(030) VALUE
+               "READ RECORDS ".
+            05 WRK-MSG-WRITTENREC    PIC X(030) VALUE
+               "WRITTEN RECORDS".
+            05 WRK-MSG-UNKNOWN       PIC X(030) VALUE
+               "UNKNOWN ERROR".
 
       *---------------------------- FILE
        77 MOVIES-STATUS              PIC 9(002) VALUE ZEROS.
-       77 WRK-COUNTLINE              PIC 9(003) VALUE ZEROS.
-       77 WRK-PAGE                   PIC 9(002) VALUE ZEROS.
+       77 REPORT-MOVIES-STATUS       PIC 9(002) VALUE ZEROS.
+       77 WRK-WRITTEN-RECORDS        PIC 9(005) VALUE ZEROS.
        77 WRK-REGQTY                 PIC 9(005) VALUE ZEROS.
 
        LINKAGE                 SECTION.
       *---------------------------- LINKAGE VARIABLES
        01 LNK-TITLE.
             05 LNK-SCREEN-TITLE      PIC X(020).
-            05 LNK-MODULE-TITLE      PIC X(016).
+            05 LNK-MODULE-TITLE      PIC X(026).
 
        SCREEN                  SECTION.
       *---------------------------- ERROR SCREEN
@@ -87,27 +98,6 @@
                    BACKGROUND-COLOR 3
                    USING WRK-KEY.
 
-      *---------------------------- MOVIE DATA SCREEN
-       01 ENTITY-DATA-SCREEN.
-            05 QUERY-KEY FOREGROUND-COLOR 2.
-                10 LINE 10 COLUMN 10 VALUE "ID: ".
-                10 COLUMN PLUS 2     PIC 9(005) USING MOVIES-KEY
-                   BLANK WHEN ZEROS.
-            05 ENTITY-DATA.
-                10 LINE 11 COLUMN 10 VALUE "TITLE: ".
-                10 COLUMN PLUS 2     PIC X(030) USING MOVIES-TITLE.
-                10 LINE 12 COLUMN 10 VALUE "GENRE: ".
-                10 COLUMN PLUS 2     PIC X(008) USING MOVIES-GENRE.
-                10 LINE 13 COLUMN 10 VALUE "DURATION: ".
-                10 COLUMN PLUS 2     PIC 9(003) USING MOVIES-DURATION
-                   BLANK WHEN ZEROS.
-                10 LINE 14 COLUMN 10 VALUE "DISTRIBUTOR: ".
-                10 COLUMN PLUS 2     PIC X(015)
-                   USING MOVIES-DISTRIBUTOR.
-                10 LINE 15 COLUMN 10 VALUE "RATING: ".
-                10 COLUMN PLUS 2     PIC 9(002) USING MOVIES-RATING
-                   BLANK WHEN ZEROS.
-
       *---------------------------- SCREEN LAYOUT
        01 CLEANER-SCREEN.
             05 CLEAN-SCREEN.
@@ -119,15 +109,9 @@
                     FROM LNK-SCREEN-TITLE.
                10 LINE 02 COLUMN 01  PIC X(025) ERASE EOL
                     BACKGROUND-COLOR 1.
-               10 LINE 02 COLUMN 14  PIC X(015)
+               10 LINE 02 COLUMN 14  PIC X(026)
                     BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
                     FROM LNK-MODULE-TITLE.
-               10 LINE 02 COLUMN 40
-                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
-                    VALUE "PAGE ".
-               10 COLUMN PLUS 2      PIC 9(002)
-                    BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
-                    FROM WRK-PAGE.
 
        PROCEDURE               DIVISION USING LNK-TITLE.
 
@@ -163,13 +147,10 @@
        0300-PROCESS            SECTION.
             MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR
                WRK-KEY.
-            MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING.
-
-            MOVE 01 TO WRK-PAGE.
+            MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING
+               WRK-REGQTY WRK-WRITTEN-RECORDS.
 
             DISPLAY CLEANER-SCREEN.
-      *      MOVE 00001 TO MOVIES-KEY.
-      *      START MOVIES KEY EQUAL MOVIES-KEY.
             PERFORM 0310-REPORT.
 
        0310-REPORT             SECTION.
@@ -177,52 +158,27 @@
                INVALID KEY
                    MOVE WRK-MSG-NOTFOUND TO WRK-ERROR-MSG
                NOT INVALID KEY
-                   PERFORM 0320-REPORT-HEADER
-                   PERFORM 0340-REPORT-PROCESS
-                   PERFORM 0350-REPORT-STATISTICS.
-            PERFORM 9000-MANAGE-ERROR.
+                   OPEN OUTPUT REPORT-MOVIES
+                   PERFORM 0320-REPORT-PROCESS
+                   CLOSE REPORT-MOVIES
+            END-READ.
+            IF WRK-ERROR-MSG NOT EQUAL SPACES
+                PERFORM 9000-MANAGE-ERROR
+            ELSE
+               PERFORM 0330-REPORT-STATISTICS
+            END-IF.
 
-       0320-REPORT-HEADER      SECTION.
-            MOVE 0 TO WRK-COUNTLINE.
-            MOVE 0 TO WRK-REGQTY.
-            MOVE 1 TO WRK-PAGE.
+            MOVE SPACES TO WRK-KEY.
 
-            MOVE 03 TO WRK-LINE.
-            DISPLAY WRK-MSG-REPORT      LINE WRK-LINE COLUMN 14.
-            ADD 01 TO WRK-LINE.
-            DISPLAY '--------------'    LINE WRK-LINE COLUMN 14.
-            ADD 01 TO WRK-LINE.
-            DISPLAY 'KEY'               LINE WRK-LINE COLUMN 01.
-            DISPLAY 'TITLE'             LINE WRK-LINE COLUMN 06.
-            DISPLAY 'GENRE'             LINE WRK-LINE COLUMN 37.
-            DISPLAY 'DURATION'          LINE WRK-LINE COLUMN 46.
-            DISPLAY 'DISTRIBUTOR'       LINE WRK-LINE COLUMN 55.
-            DISPLAY 'RATING'            LINE WRK-LINE COLUMN 71.
-
-       0330-REPORT-DATA        SECTION.
-            ADD 01 TO WRK-LINE.
-            DISPLAY MOVIES-KEY          LINE WRK-LINE COLUMN 01.
-            DISPLAY MOVIES-TITLE        LINE WRK-LINE COLUMN 06.
-            DISPLAY MOVIES-GENRE        LINE WRK-LINE COLUMN 37.
-            DISPLAY MOVIES-DURATION     LINE WRK-LINE COLUMN 46.
-            DISPLAY MOVIES-DISTRIBUTOR  LINE WRK-LINE COLUMN 55.
-            DISPLAY MOVIES-RATING       LINE WRK-LINE COLUMN 71.
-
-            ADD 1 TO WRK-REGQTY.
-            ADD 1 TO WRK-COUNTLINE.
-
-       0340-REPORT-PROCESS     SECTION.
+       0320-REPORT-PROCESS     SECTION.
             PERFORM UNTIL MOVIES-STATUS = 10
-               IF WRK-COUNTLINE = 5
-                   MOVE WRK-MSG-PRESSKEY TO WRK-ERROR-MSG
-                   PERFORM 9000-MANAGE-ERROR
-                   ADD 1 TO WRK-PAGE
-                   DISPLAY CLEANER-SCREEN
-                   PERFORM 0320-REPORT-HEADER
-                   MOVE 0 TO WRK-COUNTLINE
-               END-IF
+               ADD 1 TO WRK-REGQTY
+               MOVE MOVIES-REG TO REPORT-MOVIES-REG
 
-               PERFORM 0330-REPORT-DATA
+               WRITE REPORT-MOVIES-REG
+               IF REPORT-MOVIES-STATUS = 0
+                   ADD 1 TO WRK-WRITTEN-RECORDS
+               END-IF
 
                READ MOVIES NEXT
                    AT END
@@ -230,10 +186,24 @@
                END-READ
             END-PERFORM.
 
-       0350-REPORT-STATISTICS  SECTION.
-            MOVE WRK-MSG-READRECORDS TO WRK-ERROR-MSG.
-            MOVE WRK-REGQTY TO WRK-ERROR-MSG(14:05).
-      *      DISPLAY ERROR-SCREEN.
+       0330-REPORT-STATISTICS  SECTION.
+            MOVE 17 TO WRK-LINE.
+            DISPLAY WRK-MSG-READRECORDS LINE WRK-LINE COLUMN 10
+               BACKGROUND-COLOR 3.
+            DISPLAY WRK-REGQTY          LINE WRK-LINE COLUMN 26
+               BACKGROUND-COLOR 3.
+
+            ADD 1 TO WRK-LINE.
+            DISPLAY WRK-MSG-WRITTENREC  LINE WRK-LINE COLUMN 10
+               BACKGROUND-COLOR 3.
+            DISPLAY WRK-WRITTEN-RECORDS LINE WRK-LINE COLUMN 26
+               BACKGROUND-COLOR 3.
+
+            ADD 1 TO WRK-LINE.
+            DISPLAY WRK-MSG-PRESSKEY    LINE WRK-LINE COLUMN 10
+               BACKGROUND-COLOR 3.
+            ACCEPT WRK-KEY              LINE WRK-LINE COLUMN 26
+               BACKGROUND-COLOR 3.
 
        0400-FINALIZE           SECTION.
             CLOSE MOVIES.
