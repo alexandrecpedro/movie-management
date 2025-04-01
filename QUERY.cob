@@ -15,7 +15,7 @@
        INPUT-OUTPUT            SECTION.
        FILE-CONTROL.
       *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
-             SELECT MOVIES ASSIGN TO "C:\Cobol\MOVIES.DAT"
+             SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
              ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC
              FILE STATUS IS MOVIES-STATUS
@@ -41,16 +41,16 @@
        77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
 
        01   WRK-MSGS.
-            05  WRK-MSG-CORRUPTED    PIC X(030) VALUE
-            "CORRUPTED FILE".
-            05  WRK-MSG-NOTFOUND     PIC X(030) VALUE
-            "ENTITY NOT FOUND".
-            05  WRK-MSG-OPEN         PIC X(030) VALUE
-            "ERROR WHILE OPENING FILE".
-            05  WRK-MSG-PATH         PIC X(030) VALUE
-            "ERROR ON FILE PATH".
-            05  WRK-MSG-UNKNOWN      PIC X(030) VALUE
-            "UNKNOWN ERROR".
+            05 WRK-MSG-CORRUPTED    PIC X(030) VALUE
+               "CORRUPTED FILE".
+            05 WRK-MSG-NOTFOUND     PIC X(030) VALUE
+               "ENTITY NOT FOUND".
+            05 WRK-MSG-OPEN         PIC X(030) VALUE
+               "ERROR WHILE OPENING FILE".
+            05 WRK-MSG-PATH         PIC X(030) VALUE
+               "ERROR ON FILE PATH".
+            05 WRK-MSG-UNKNOWN      PIC X(030) VALUE
+               "UNKNOWN ERROR".
 
       *---------------------------- FILE
        77 MOVIES-STATUS              PIC 9(002) VALUE ZEROS.
@@ -59,7 +59,7 @@
       *---------------------------- LINKAGE VARIABLES
        01 LNK-TITLE.
             05 LNK-SCREEN-TITLE      PIC X(020).
-            05 LNK-MODULE-TITLE      PIC X(016).
+            05 LNK-MODULE-TITLE      PIC X(026).
 
        SCREEN                  SECTION.
       *---------------------------- ERROR SCREEN
@@ -108,7 +108,7 @@
                     FROM LNK-SCREEN-TITLE.
                10 LINE 02 COLUMN 01  PIC X(025) ERASE EOL
                     BACKGROUND-COLOR 1.
-               10 LINE 02 COLUMN 14  PIC X(015)
+               10 LINE 02 COLUMN 14  PIC X(026)
                     BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
                     FROM LNK-MODULE-TITLE.
 
