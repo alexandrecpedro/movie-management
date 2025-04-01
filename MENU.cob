@@ -15,7 +15,7 @@
        INPUT-OUTPUT            SECTION.
        FILE-CONTROL.
       *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
-             SELECT MOVIES ASSIGN TO "C:\Cobol\MOVIES.DAT"
+             SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
              ORGANIZATION IS INDEXED
              ACCESS MODE IS SEQUENTIAL
              FILE STATUS IS MOVIES-STATUS
@@ -42,14 +42,14 @@
        77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
 
        01   WRK-MSGS.
-            05  WRK-MSG-CORRUPTED    PIC X(030) VALUE
-            "CORRUPTED FILE".
-            05  WRK-MSG-OPEN         PIC X(030) VALUE
-            "ERROR WHILE OPENING FILE".
-            05  WRK-MSG-OPTION       PIC X(030) VALUE
-            "INVALID OPTION! TRY AGAIN".
-            05  WRK-MSG-PATH         PIC X(030) VALUE
-            "ERROR ON FILE PATH".
+            05 WRK-MSG-CORRUPTED     PIC X(030) VALUE
+               "CORRUPTED FILE".
+            05 WRK-MSG-OPEN          PIC X(030) VALUE
+               "ERROR WHILE OPENING FILE".
+            05 WRK-MSG-OPTION        PIC X(030) VALUE
+               "INVALID OPTION! TRY AGAIN".
+            05 WRK-MSG-PATH          PIC X(030) VALUE
+               "ERROR ON FILE PATH".
 
       *---------------------------- FILE
        77 MOVIES-STATUS              PIC 9(002) VALUE ZEROS.
@@ -57,7 +57,7 @@
       *---------------------------- TITLES
        01 WRK-TITLE.
             05 WRK-SCREEN-TITLE      PIC X(020) VALUE "MOVIE SYSTEM".
-            05 WRK-MODULE-TITLE      PIC X(016) VALUE SPACES.
+            05 WRK-MODULE-TITLE      PIC X(026) VALUE SPACES.
 
        SCREEN                  SECTION.
       *---------------------------- SCREEN LAYOUT
@@ -71,7 +71,7 @@
                     FROM WRK-SCREEN-TITLE.
                 10 LINE 02 COLUMN 01 PIC X(025) ERASE EOL
                     BACKGROUND-COLOR 1.
-                10 LINE 02 COLUMN 14 PIC X(015)
+                10 LINE 02 COLUMN 14 PIC X(026)
                     BACKGROUND-COLOR 1 FOREGROUND-COLOR 6
                     FROM WRK-MODULE-TITLE.
 
@@ -81,10 +81,11 @@
             05 LINE 08 COLUMN 15 VALUE "2 - QUERY".
             05 LINE 09 COLUMN 15 VALUE "3 - UPDATE".
             05 LINE 10 COLUMN 15 VALUE "4 - DELETE".
-            05 LINE 11 COLUMN 15 VALUE "5 - REPORT".
-            05 LINE 12 COLUMN 15 VALUE "X - EXIT".
-            05 LINE 13 COLUMN 15 VALUE "OPTION...: ".
-            05 LINE 13 COLUMN 26     PIC X(001) USING WRK-OPTION.
+            05 LINE 11 COLUMN 15 VALUE "5 - REPORT ON SCREEN".
+            05 LINE 12 COLUMN 15 VALUE "6 - REPORT ON DISK".
+            05 LINE 13 COLUMN 15 VALUE "X - EXIT".
+            05 LINE 14 COLUMN 15 VALUE "OPTION...: ".
+            05 LINE 14 COLUMN 26     PIC X(001) USING WRK-OPTION.
 
       *---------------------------- ERROR SCREEN
        01 ERROR-SCREEN.
@@ -148,8 +149,11 @@
                  MOVE "MODULE - DELETE " TO WRK-MODULE-TITLE
                  CALL "DELETE" USING WRK-TITLE
               WHEN 5
-                 MOVE "MODULE - REPORT " TO WRK-MODULE-TITLE
-                 CALL "REPORT" USING WRK-TITLE
+                 MOVE "MODULE - REPORT ON SCREEN " TO WRK-MODULE-TITLE
+                 CALL "REPORTSCREEN" USING WRK-TITLE
+              WHEN 6
+                 MOVE "MODULE - REPORT ON DISK " TO WRK-MODULE-TITLE
+                 CALL "REPORTDISK" USING WRK-TITLE
               WHEN "X"
                   CONTINUE
               WHEN OTHER
