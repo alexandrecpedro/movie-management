@@ -14,12 +14,12 @@
 
        INPUT-OUTPUT            SECTION.
        FILE-CONTROL.
-      *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
-             SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
-             ORGANIZATION IS INDEXED
-             ACCESS MODE IS SEQUENTIAL
-             FILE STATUS IS MOVIES-STATUS
-             RECORD KEY IS MOVIES-KEY.
+      *      SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
+            SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
+            ORGANIZATION IS INDEXED
+            ACCESS MODE IS SEQUENTIAL
+            FILE STATUS IS MOVIES-STATUS
+            RECORD KEY IS MOVIES-KEY.
 
        DATA                    DIVISION.
        FILE                    SECTION.
@@ -35,8 +35,8 @@
 
        WORKING-STORAGE         SECTION.
       *---------------------------- DATA ENTRY VARIABLES
-       77 WRK-OPTION                 PIC X(001) VALUE SPACE.
        77 WRK-KEY                    PIC X(001) VALUE SPACE.
+       77 WRK-OPTION                 PIC X(001) VALUE SPACE.
 
       *---------------------------- ERROR MESSAGES
        77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
@@ -103,7 +103,7 @@
 
        0100-MAIN               SECTION.
             PERFORM 0200-INITIALIZE.
-            PERFORM 0300-PROCESS UNTIL WRK-OPTION EQUAL "X".
+            PERFORM 0300-PROCESS UNTIL WRK-OPTION = "X" OR "x".
             PERFORM 0400-FINALIZE.
             STOP RUN.
 
@@ -154,11 +154,12 @@
               WHEN 6
                  MOVE "MODULE - REPORT ON DISK " TO WRK-MODULE-TITLE
                  CALL "REPORTDISK" USING WRK-TITLE
-              WHEN "X"
-                  CONTINUE
               WHEN OTHER
-                  MOVE WRK-MSG-OPTION TO WRK-ERROR-MSG
-                  PERFORM 9000-MANAGE-ERROR
+                 IF WRK-OPTION = "X" OR "x"
+                     CONTINUE
+                 END-IF
+                 MOVE WRK-MSG-OPTION TO WRK-ERROR-MSG
+                 PERFORM 9000-MANAGE-ERROR
             END-EVALUATE.
 
             MOVE SPACE TO WRK-OPTION WRK-KEY WRK-MODULE-TITLE.
@@ -168,8 +169,8 @@
             PERFORM 0220-DISPLAY-MENU.
 
        0400-FINALIZE           SECTION.
-           CLOSE MOVIES.
-           GOBACK.
+            CLOSE MOVIES.
+            GOBACK.
 
        9000-MANAGE-ERROR       SECTION.
             ACCEPT ERROR-SCREEN.
