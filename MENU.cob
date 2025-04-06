@@ -77,8 +77,8 @@
 
       *---------------------------- MENU
        01 SHOW-MENU.
-            05 LINE 07 COLUMN 15 VALUE "1 - INSERT".
-            05 LINE 08 COLUMN 15 VALUE "2 - QUERY".
+            05 LINE 07 COLUMN 15 VALUE "1 - REGISTER".
+            05 LINE 08 COLUMN 15 VALUE "2 - SEARCH".
             05 LINE 09 COLUMN 15 VALUE "3 - UPDATE".
             05 LINE 10 COLUMN 15 VALUE "4 - DELETE".
             05 LINE 11 COLUMN 15 VALUE "5 - REPORT ON SCREEN".
