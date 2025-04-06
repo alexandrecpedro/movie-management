@@ -137,8 +137,8 @@
        0300-PROCESS            SECTION.
             EVALUATE WRK-OPTION
               WHEN 1
-                 MOVE "MODULE - INSERT " TO WRK-MODULE-TITLE
-                 CALL "INSERT" USING WRK-TITLE
+                 MOVE "MODULE - REGISTER " TO WRK-MODULE-TITLE
+                 CALL "REGISTER" USING WRK-TITLE
               WHEN 2
                  MOVE "MODULE - QUERY " TO WRK-MODULE-TITLE
                  CALL "QUERY" USING WRK-TITLE
