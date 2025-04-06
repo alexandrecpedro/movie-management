@@ -14,12 +14,12 @@
 
        INPUT-OUTPUT            SECTION.
        FILE-CONTROL.
-      *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
-             SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
-             ORGANIZATION IS INDEXED
-             ACCESS MODE IS SEQUENTIAL
-             FILE STATUS IS MOVIES-STATUS
-             RECORD KEY IS MOVIES-KEY.
+      *      SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
+            SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
+            ORGANIZATION IS INDEXED
+            ACCESS MODE IS SEQUENTIAL
+            FILE STATUS IS MOVIES-STATUS
+            RECORD KEY IS MOVIES-KEY.
 
        DATA                    DIVISION.
        FILE                    SECTION.
@@ -39,27 +39,27 @@
        77 WRK-KEY                    PIC X(001).
 
       *---------------------------- DISPLAY VARIABLES
-       01 WRK-LINE                   PIC 9(002) VALUE 01.
+       77 WRK-LINE                   PIC 9(002) VALUE 01.
 
       *---------------------------- ERROR MESSAGES
-       77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
+       77 WRK-ERROR-MSG              PIC X(040) VALUE SPACES.
 
        01   WRK-MSGS.
-            05 WRK-MSG-CORRUPTED     PIC X(030) VALUE
+            05 WRK-MSG-CORRUPTED     PIC X(040) VALUE
                "CORRUPTED FILE".
-            05 WRK-MSG-NOTFOUND      PIC X(030) VALUE
+            05 WRK-MSG-NOTFOUND      PIC X(040) VALUE
                "ENTITY NOT FOUND".
-            05 WRK-MSG-OPEN          PIC X(030) VALUE
+            05 WRK-MSG-OPEN          PIC X(040) VALUE
                "ERROR WHILE OPENING FILE".
-            05 WRK-MSG-PATH          PIC X(030) VALUE
+            05 WRK-MSG-PATH          PIC X(040) VALUE
                "ERROR ON FILE PATH".
-            05 WRK-MSG-PRESSKEY      PIC X(030) VALUE
+            05 WRK-MSG-PRESSKEY      PIC X(040) VALUE
                "PRESS ANY KEY".
-            05 WRK-MSG-READRECORDS   PIC X(030) VALUE
+            05 WRK-MSG-READRECORDS   PIC X(040) VALUE
                "READ RECORDS".
-            05 WRK-MSG-REPORT        PIC X(030) VALUE
+            05 WRK-MSG-REPORT        PIC X(040) VALUE
                "MOVIES REPORT".
-            05 WRK-MSG-UNKNOWN       PIC X(030) VALUE
+            05 WRK-MSG-UNKNOWN       PIC X(040) VALUE
                "UNKNOWN ERROR".
 
       *---------------------------- FILE
@@ -67,6 +67,13 @@
        77 WRK-COUNTLINE              PIC 9(003) VALUE ZEROS.
        77 WRK-PAGE                   PIC 9(002) VALUE ZEROS.
        77 WRK-REGQTY                 PIC 9(005) VALUE ZEROS.
+       01 WRK-REPORT-HEADER.
+           05 WRK-REPORT-KEY         PIC X(006) VALUE "KEY".
+           05 WRK-REPORT-TITLE       PIC X(031) VALUE "TITLE".
+           05 WRK-REPORT-GENRE       PIC X(009) VALUE "GENRE".
+           05 WRK-REPORT-DURATION    PIC X(009) VALUE "DURATION".
+           05 WRK-REPORT-DISTRIBUTOR PIC X(016) VALUE "DISTRIBUTOR".
+           05 WRK-REPORT-RATING      PIC X(006) VALUE "RATING".
 
        LINKAGE                 SECTION.
       *---------------------------- LINKAGE VARIABLES
@@ -78,9 +85,9 @@
       *---------------------------- ERROR SCREEN
        01 ERROR-SCREEN.
             05 MSG-ERROR.
-                10 LINE 16 COLUMN 01 ERASE EOL
+                10 LINE 18 COLUMN 01 ERASE EOL
                    BACKGROUND-COLOR 3.
-                10 LINE 16 COLUMN 10 PIC X(030)
+                10 LINE 18 COLUMN 10 PIC X(040)
                    BACKGROUND-COLOR 3
                    USING WRK-ERROR-MSG.
                 10 COLUMN PLUS 2     PIC X(001)
@@ -183,25 +190,25 @@
 
        0320-REPORT-HEADER      SECTION.
             MOVE 03 TO WRK-LINE.
-            DISPLAY WRK-MSG-REPORT      LINE WRK-LINE COLUMN 14.
+            DISPLAY WRK-MSG-REPORT         LINE WRK-LINE COLUMN 14.
             ADD 01 TO WRK-LINE.
-            DISPLAY '--------------'    LINE WRK-LINE COLUMN 14.
+            DISPLAY '--------------'       LINE WRK-LINE COLUMN 14.
             ADD 01 TO WRK-LINE.
-            DISPLAY 'KEY'               LINE WRK-LINE COLUMN 01.
-            DISPLAY 'TITLE'             LINE WRK-LINE COLUMN 06.
-            DISPLAY 'GENRE'             LINE WRK-LINE COLUMN 37.
-            DISPLAY 'DURATION'          LINE WRK-LINE COLUMN 46.
-            DISPLAY 'DISTRIBUTOR'       LINE WRK-LINE COLUMN 55.
-            DISPLAY 'RATING'            LINE WRK-LINE COLUMN 71.
+            DISPLAY WRK-REPORT-KEY         LINE WRK-LINE COLUMN 01.
+            DISPLAY WRK-REPORT-TITLE       LINE WRK-LINE COLUMN 06.
+            DISPLAY WRK-REPORT-GENRE       LINE WRK-LINE COLUMN 37.
+            DISPLAY WRK-REPORT-DURATION    LINE WRK-LINE COLUMN 46.
+            DISPLAY WRK-REPORT-DISTRIBUTOR LINE WRK-LINE COLUMN 55.
+            DISPLAY WRK-REPORT-RATING      LINE WRK-LINE COLUMN 71.
 
        0330-REPORT-DATA        SECTION.
             ADD 01 TO WRK-LINE.
-            DISPLAY MOVIES-KEY          LINE WRK-LINE COLUMN 01.
-            DISPLAY MOVIES-TITLE        LINE WRK-LINE COLUMN 06.
-            DISPLAY MOVIES-GENRE        LINE WRK-LINE COLUMN 37.
-            DISPLAY MOVIES-DURATION     LINE WRK-LINE COLUMN 46.
-            DISPLAY MOVIES-DISTRIBUTOR  LINE WRK-LINE COLUMN 55.
-            DISPLAY MOVIES-RATING       LINE WRK-LINE COLUMN 71.
+            DISPLAY MOVIES-KEY             LINE WRK-LINE COLUMN 01.
+            DISPLAY MOVIES-TITLE           LINE WRK-LINE COLUMN 06.
+            DISPLAY MOVIES-GENRE           LINE WRK-LINE COLUMN 37.
+            DISPLAY MOVIES-DURATION        LINE WRK-LINE COLUMN 46.
+            DISPLAY MOVIES-DISTRIBUTOR     LINE WRK-LINE COLUMN 55.
+            DISPLAY MOVIES-RATING          LINE WRK-LINE COLUMN 71.
 
             ADD 1 TO WRK-REGQTY.
             ADD 1 TO WRK-COUNTLINE.
