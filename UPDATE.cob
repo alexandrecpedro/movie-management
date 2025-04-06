@@ -14,12 +14,12 @@
 
        INPUT-OUTPUT            SECTION.
        FILE-CONTROL.
-      *       SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
-             SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
-             ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC
-             FILE STATUS IS MOVIES-STATUS
-             RECORD KEY IS MOVIES-KEY.
+      *      SELECT MOVIES ASSIGN TO "./Data/MOVIES.DAT"
+            SELECT MOVIES ASSIGN TO "C:\Cobol\Project\Data\MOVIES.DAT"
+            ORGANIZATION IS INDEXED
+            ACCESS MODE IS DYNAMIC
+            FILE STATUS IS MOVIES-STATUS
+            RECORD KEY IS MOVIES-KEY.
 
        DATA                    DIVISION.
        FILE                    SECTION.
@@ -36,34 +36,44 @@
 
        WORKING-STORAGE         SECTION.
       *---------------------------- DATA ENTRY VARIABLES
-       77 WRK-KEY                    PIC X(001).
+       77 WRK-KEY                    PIC X(001) VALUE SPACES.
 
       *---------------------------- DISPLAY VARIABLES
-       01 WRK-LINE                   PIC 9(002) VALUE 01.
+       77 WRK-INSTRUCTIONS           PIC X(040) VALUE SPACES.
+       77 WRK-LINE                   PIC 9(002) VALUE 01.
 
       *---------------------------- ERROR MESSAGES
-       77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
+       77 WRK-ERROR-MSG              PIC X(040) VALUE SPACES.
 
        01   WRK-MSGS.
-            05 WRK-MSG-CORRUPTED     PIC X(030) VALUE
+            05 WRK-MSG-CONTINUE      PIC X(040) VALUE
+               "DO YOU WANT TO UPDATE ANOTHER (Y/N)?".
+            05 WRK-MSG-CORRUPTED     PIC X(040) VALUE
                "CORRUPTED FILE".
-            05 WRK-MSG-NOTFOUND      PIC X(030) VALUE
+            05 WRK-MSG-DATA          PIC X(040) VALUE
+               "ENTER ENTITY DATA. THEN PRESS ENTER".
+            05 WRK-MSG-INFO          PIC X(040) VALUE
+               "ENTER AN ID AND PRESS ENTER".
+            05 WRK-MSG-NOTFOUND      PIC X(040) VALUE
                "ENTITY NOT FOUND".
-            05 WRK-MSG-NOTUPDATED    PIC X(030) VALUE
+            05 WRK-MSG-NOTUPDATED    PIC X(040) VALUE
                "ERROR WHILE UPDATING ENTITY".
-            05 WRK-MSG-OPEN          PIC X(030) VALUE
+            05 WRK-MSG-OPEN          PIC X(040) VALUE
                "ERROR WHILE OPENING FILE".
-            05 WRK-MSG-PATH          PIC X(030) VALUE
+            05 WRK-MSG-PATH          PIC X(040) VALUE
                "ERROR ON FILE PATH".
-            05 WRK-MSG-PROCEED       PIC X(030) VALUE
+            05 WRK-MSG-PROCEED       PIC X(040) VALUE
                "DO YOU WANT TO PROCEED (Y/N)?".
-            05 WRK-MSG-UNKNOWN       PIC X(030) VALUE
+            05 WRK-MSG-UNKNOWN       PIC X(040) VALUE
                "UNKNOWN ERROR".
-            05 WRK-MSG-UPDATED       PIC X(030) VALUE
+            05 WRK-MSG-UPDATED       PIC X(040) VALUE
                "ENTITY UPDATED SUCCESSFULLY".
 
       *---------------------------- FILE
        77 MOVIES-STATUS              PIC 9(002) VALUE ZEROS.
+
+      *---------------------------- FLAG
+       77 WRK-EXIT-FLAG              PIC X(001).
 
        LINKAGE                 SECTION.
       *---------------------------- LINKAGE VARIABLES
@@ -75,9 +85,9 @@
       *---------------------------- ERROR SCREEN
        01 ERROR-SCREEN.
             05 MSG-ERROR.
-                10 LINE 16 COLUMN 01 ERASE EOL
+                10 LINE 18 COLUMN 01 ERASE EOL
                    BACKGROUND-COLOR 3.
-                10 LINE 16 COLUMN 10 PIC X(030)
+                10 LINE 18 COLUMN 10 PIC X(040)
                    BACKGROUND-COLOR 3
                    USING WRK-ERROR-MSG.
                 10 COLUMN PLUS 2     PIC X(001)
@@ -86,6 +96,9 @@
 
       *---------------------------- MOVIE DATA SCREEN
        01 ENTITY-DATA-SCREEN.
+            05 INFO-ENTITY.
+                10 LINE 05 COLUMN 10 PIC X(040)
+                   USING WRK-INSTRUCTIONS.
             05 QUERY-KEY FOREGROUND-COLOR 2.
                 10 LINE 10 COLUMN 10 VALUE "ID: ".
                 10 COLUMN PLUS 2     PIC 9(005) USING MOVIES-KEY
@@ -124,7 +137,7 @@
 
        0100-MAIN               SECTION.
             PERFORM 0200-INITIALIZE.
-            PERFORM 0300-PROCESS.
+            PERFORM 0300-PROCESS UNTIL WRK-EXIT-FLAG = "Y".
             PERFORM 0400-FINALIZE.
             GOBACK.
 
@@ -151,72 +164,87 @@
                PERFORM 9000-MANAGE-ERROR
             END-IF.
 
-       0300-PROCESS            SECTION.
+       0220-DISPLAY-SCREEN     SECTION.
             MOVE SPACES TO MOVIES-TITLE MOVIES-GENRE MOVIES-DISTRIBUTOR
-               WRK-KEY.
+               WRK-ERROR-MSG WRK-EXIT-FLAG WRK-KEY.
             MOVE ZEROS TO MOVIES-KEY MOVIES-DURATION MOVIES-RATING.
 
             DISPLAY CLEANER-SCREEN.
+            MOVE WRK-MSG-INFO TO WRK-INSTRUCTIONS.
             DISPLAY ENTITY-DATA-SCREEN.
+
+       0300-PROCESS            SECTION.
+            PERFORM 0220-DISPLAY-SCREEN.
             ACCEPT QUERY-KEY.
             PERFORM 0310-READ.
-            IF WRK-ERROR-MSG EQUAL SPACE
-                PERFORM 0320-UPDATE
+            PERFORM 0220-DISPLAY-SCREEN.
+
+            MOVE 18 TO WRK-LINE.
+            DISPLAY WRK-MSG-CONTINUE LINE WRK-LINE COLUMN 10
+               BACKGROUND-COLOR 3.
+            ACCEPT WRK-KEY LINE WRK-LINE COLUMN 51
+               BACKGROUND-COLOR 3.
+
+            IF WRK-KEY = "Y" OR WRK-KEY = "y"
+                MOVE "N" TO WRK-EXIT-FLAG
+            ELSE
+                MOVE "Y" TO WRK-EXIT-FLAG
             END-IF.
-            PERFORM 9000-MANAGE-ERROR.
 
        0310-READ               SECTION.
-            READ MOVIES
-               INVALID KEY
-                   MOVE WRK-MSG-NOTFOUND TO WRK-ERROR-MSG
-               NOT INVALID KEY
-                   ACCEPT ENTITY-DATA
-                   PERFORM 0330-CONFIRM-UPDATE.
+            READ MOVIES.
+            IF MOVIES-STATUS EQUAL 0
+                MOVE WRK-MSG-DATA TO WRK-INSTRUCTIONS
+                DISPLAY INFO-ENTITY
+                ACCEPT ENTITY-DATA
+                PERFORM 0330-CONFIRM-UPDATE
+            ELSE
+                MOVE WRK-MSG-NOTFOUND TO WRK-ERROR-MSG
+            END-IF.
+
+            PERFORM 9000-MANAGE-ERROR.
 
        0320-UPDATE             SECTION.
-            IF WRK-KEY = 'Y' AND MOVIES-STATUS EQUAL 0
-                REWRITE MOVIES-REG
-                   INVALID KEY
-                       MOVE WRK-MSG-NOTUPDATED TO WRK-ERROR-MSG
-                   NOT INVALID KEY
-                       MOVE WRK-MSG-UPDATED TO WRK-ERROR-MSG
-            ELSE
-                IF WRK-ERROR-MSG NOT EQUAL WRK-MSG-NOTFOUND
-                    MOVE WRK-MSG-NOTUPDATED TO WRK-ERROR-MSG
-                END-IF
-            END-IF.
-            MOVE SPACE TO WRK-KEY.
+            REWRITE MOVIES-REG
+               INVALID KEY
+                   MOVE WRK-MSG-NOTUPDATED TO WRK-ERROR-MSG
+               NOT INVALID KEY
+                   MOVE WRK-MSG-UPDATED TO WRK-ERROR-MSG.
 
        0330-CONFIRM-UPDATE     SECTION.
-            MOVE 16 TO WRK-LINE.
+            MOVE 18 TO WRK-LINE.
             DISPLAY WRK-MSG-PROCEED LINE WRK-LINE COLUMN 10
                BACKGROUND-COLOR 3.
-            ACCEPT WRK-KEY LINE WRK-LINE COLUMN 41
+            ACCEPT WRK-KEY LINE WRK-LINE COLUMN 51
                BACKGROUND-COLOR 3.
 
-       0340-DISPLAY-RESULT     SECTION.
-            IF WRK-KEY = 'Y' AND MOVIES-STATUS EQUAL 0
-                REWRITE MOVIES-REG
-                   INVALID KEY
-                       DISPLAY WRK-MSG-NOTUPDATED LINE WRK-LINE
-                           COLUMN 10 BACKGROUND-COLOR 3
-                   NOT INVALID KEY
-                       DISPLAY WRK-MSG-UPDATED LINE WRK-LINE COLUMN 10
-                       BACKGROUND-COLOR 3
+            IF WRK-KEY = "Y" OR WRK-KEY = "y"
+               PERFORM 0320-UPDATE
             ELSE
-                IF WRK-ERROR-MSG NOT EQUAL WRK-MSG-NOTFOUND
-                    DISPLAY WRK-MSG-NOTUPDATED LINE WRK-LINE COLUMN 10
-                       BACKGROUND-COLOR 3
-                END-IF
+               MOVE WRK-MSG-NOTUPDATED TO WRK-ERROR-MSG
             END-IF.
 
-            ACCEPT WRK-KEY LINE WRK-LINE COLUMN 41
-               BACKGROUND-COLOR 3.
+      * 0340-DISPLAY-RESULT     SECTION.
+      *      IF (WRK-KEY = "Y" OR WRK-KEY = "y") AND (MOVIES-STATUS = 0)
+      *          REWRITE MOVIES-REG
+      *             INVALID KEY
+      *                 DISPLAY WRK-MSG-NOTUPDATED LINE WRK-LINE
+      *                     COLUMN 10 BACKGROUND-COLOR 3
+      *             NOT INVALID KEY
+      *                 DISPLAY WRK-MSG-UPDATED LINE WRK-LINE COLUMN 10
+      *                 BACKGROUND-COLOR 3
+      *      ELSE
+      *          IF WRK-ERROR-MSG NOT EQUAL WRK-MSG-NOTFOUND
+      *              DISPLAY WRK-MSG-NOTUPDATED LINE WRK-LINE COLUMN 10
+      *                 BACKGROUND-COLOR 3
+      *          END-IF
+      *      END-IF.
 
        0400-FINALIZE           SECTION.
             CLOSE MOVIES.
             GOBACK.
 
        9000-MANAGE-ERROR       SECTION.
+            MOVE SPACES TO WRK-KEY.
             ACCEPT ERROR-SCREEN.
             MOVE SPACES TO WRK-ERROR-MSG.
