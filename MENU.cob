@@ -140,8 +140,8 @@
                  MOVE "MODULE - REGISTER " TO WRK-MODULE-TITLE
                  CALL "REGISTER" USING WRK-TITLE
               WHEN 2
-                 MOVE "MODULE - QUERY " TO WRK-MODULE-TITLE
-                 CALL "QUERY" USING WRK-TITLE
+                 MOVE "MODULE - SEARCH " TO WRK-MODULE-TITLE
+                 CALL "SEARCH" USING WRK-TITLE
               WHEN 3
                  MOVE "MODULE - UPDATE " TO WRK-MODULE-TITLE
                  CALL "UPDATE" USING WRK-TITLE
