@@ -84,15 +84,15 @@
             05 LINE 11 COLUMN 15 VALUE "5 - REPORT ON SCREEN".
             05 LINE 12 COLUMN 15 VALUE "6 - REPORT ON DISK".
             05 LINE 13 COLUMN 15 VALUE "X - EXIT".
-            05 LINE 14 COLUMN 15 VALUE "OPTION...: ".
-            05 LINE 14 COLUMN 26     PIC X(001) USING WRK-OPTION.
+            05 LINE 15 COLUMN 15 VALUE "OPTION...: ".
+            05 LINE 15 COLUMN 26     PIC X(001) USING WRK-OPTION.
 
       *---------------------------- ERROR SCREEN
        01 ERROR-SCREEN.
             05 MSG-ERROR.
-                10 LINE 16 COLUMN 01 ERASE EOL
+                10 LINE 18 COLUMN 01 ERASE EOL
                    BACKGROUND-COLOR 3.
-                10 LINE 16 COLUMN 10 PIC X(030)
+                10 LINE 18 COLUMN 10 PIC X(030)
                    BACKGROUND-COLOR 3
                    USING WRK-ERROR-MSG.
                 10 COLUMN PLUS 2     PIC X(001)
