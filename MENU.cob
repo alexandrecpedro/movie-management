@@ -39,16 +39,16 @@
        77 WRK-OPTION                 PIC X(001) VALUE SPACE.
 
       *---------------------------- ERROR MESSAGES
-       77 WRK-ERROR-MSG              PIC X(030) VALUE SPACES.
+       77 WRK-ERROR-MSG              PIC X(040) VALUE SPACES.
 
        01   WRK-MSGS.
-            05 WRK-MSG-CORRUPTED     PIC X(030) VALUE
+            05 WRK-MSG-CORRUPTED     PIC X(040) VALUE
                "CORRUPTED FILE".
-            05 WRK-MSG-OPEN          PIC X(030) VALUE
+            05 WRK-MSG-OPEN          PIC X(040) VALUE
                "ERROR WHILE OPENING FILE".
-            05 WRK-MSG-OPTION        PIC X(030) VALUE
+            05 WRK-MSG-OPTION        PIC X(040) VALUE
                "INVALID OPTION! TRY AGAIN".
-            05 WRK-MSG-PATH          PIC X(030) VALUE
+            05 WRK-MSG-PATH          PIC X(040) VALUE
                "ERROR ON FILE PATH".
 
       *---------------------------- FILE
